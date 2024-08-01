@@ -1,7 +1,18 @@
 * {
   box-sizing: border-box;
+  margin: 0;
+}
+
+html,
+body {
+  height: 100%;
+  overscroll-behavior: none;
 }
 
 p {
   margin: 0;
+}
+
+.cl-footer .cl-footerAction .cl-footerAction__signIn {
+  display: none !important;
 }

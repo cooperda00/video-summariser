@@ -4,6 +4,7 @@ import styles from "./Home.module.css";
 import { FormEvent, useState } from "react";
 import axios from "axios";
 import ReactMarkdown from "react-markdown";
+import { RedirectToSignIn, SignedIn, SignedOut } from "@clerk/nextjs";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -41,32 +42,38 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className={`${styles.main} ${inter.className}`}>
-        <form onSubmit={handleSubmit}>
-          <label htmlFor="videoURL">Video URL</label>
+      <SignedOut>
+        <RedirectToSignIn />
+      </SignedOut>
 
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-          />
+      <SignedIn>
+        <main className={`${styles.main} ${inter.className}`}>
+          <form onSubmit={handleSubmit}>
+            <label htmlFor="videoURL">Video URL</label>
 
-          <button type="submit">Submit</button>
-        </form>
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+            />
 
-        <section>
-          {transcript.map((line, i) => (
-            <p key={i}>{line}</p>
-          ))}
-        </section>
+            <button type="submit">Submit</button>
+          </form>
 
-        <section>
-          <ReactMarkdown>{summary}</ReactMarkdown>
+          <section>
+            {transcript.map((line, i) => (
+              <p key={i}>{line}</p>
+            ))}
+          </section>
 
-          <button>Email this to me</button>
-          <button>Download as PDF</button>
-        </section>
-      </main>
+          <section>
+            <ReactMarkdown>{summary}</ReactMarkdown>
+
+            <button>Email this to me</button>
+            <button>Download as PDF</button>
+          </section>
+        </main>
+      </SignedIn>
     </>
   );
 }

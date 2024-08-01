@@ -1,6 +1,5 @@
 TODO :
 - Styles
-- Auth : allow login with email/password but not signup
 - Validate link on fe / be (share logic), ensure that it follows a youtube regex and has a video id
 - email me route (use same service a personal app), when auth is implemented email to the currently logged in user
 - download as pdf route
