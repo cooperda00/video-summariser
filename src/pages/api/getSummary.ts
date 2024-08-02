@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { getSubtitles } from "youtube-captions-scraper";
 import OpenAI from "openai";
 import { extractYoutubeVideoId } from "@/lib";
+import { getAuth } from "@clerk/nextjs/server";
 
 const openAPI = new OpenAI({
   apiKey: process.env["OPENAI_API_KEY"], // This is the default and can be omitted
@@ -18,11 +19,17 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Response>
 ) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Wrong Method" });
+  const { userId } = getAuth(req);
+
+  if (!userId) {
+    return res.status(401).json({ error: "You are not authenticated" });
   }
 
-  // TODO : Parse with Zod
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Wrong method" });
+  }
+
+  // Validate with Zod
   if (!req.body.url) {
     return res.status(400).json({ error: "No url provided" });
   }
@@ -53,7 +60,7 @@ export default async function handler(
     });
 
     if (!chatRes.choices.length || !chatRes.choices[0].message.content) {
-      return res.status(500).json({ error: "Could not create summary" });
+      return res.status(500).json({ error: "Failed to create summary" });
     }
 
     return res

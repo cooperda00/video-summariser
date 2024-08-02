@@ -2,7 +2,7 @@ import Head from "next/head";
 import { Inter } from "next/font/google";
 import styles from "./Home.module.css";
 import { FormEvent, useState } from "react";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import ReactMarkdown from "react-markdown";
 import { RedirectToSignIn, SignedIn, SignedOut } from "@clerk/nextjs";
 
@@ -27,7 +27,25 @@ export default function Home() {
       if (res.data.summary) {
         setSummary(res.data.summary);
       }
-    } catch (error) {}
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        console.log(error.response?.data.error); // TODO : error toast
+      }
+    }
+  };
+
+  const handleSendEmail = async () => {
+    if (!summary) return;
+
+    try {
+      await axios.post("/api/emailMe", { summary });
+
+      // TODO : success toast
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        console.log(error.response?.data.error); // TODO : error toast
+      }
+    }
   };
 
   return (
@@ -69,7 +87,9 @@ export default function Home() {
           <section>
             <ReactMarkdown>{summary}</ReactMarkdown>
 
-            <button>Email this to me</button>
+            <button onClick={handleSendEmail} disabled={!summary}>
+              Email this to me
+            </button>
             <button>Download as PDF</button>
           </section>
         </main>
