@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getSubtitles } from "youtube-captions-scraper";
 import OpenAI from "openai";
+import { extractYoutubeVideoId } from "@/lib";
 
 const openAPI = new OpenAI({
   apiKey: process.env["OPENAI_API_KEY"], // This is the default and can be omitted
@@ -21,12 +22,12 @@ export default async function handler(
     return res.status(405).json({ error: "Wrong Method" });
   }
 
-  // Parse with Zod
+  // TODO : Parse with Zod
   if (!req.body.url) {
     return res.status(400).json({ error: "No url provided" });
   }
 
-  const videoID = extractVideoId(req.body.url);
+  const videoID = extractYoutubeVideoId(req.body.url);
 
   if (!videoID) {
     return res.status(422).json({ error: "Cannot find video id" });
@@ -63,10 +64,3 @@ export default async function handler(
     return res.status(500).json({ error: (error as Error).message });
   }
 }
-
-const extractVideoId = (url: string) => {
-  const regExp =
-    /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-  const match = url.match(regExp);
-  return match && match[2].length === 11 ? match[2] : null;
-};
