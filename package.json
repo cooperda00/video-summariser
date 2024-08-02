@@ -12,6 +12,7 @@
   "dependencies": {
     "@clerk/nextjs": "^5.2.10",
     "axios": "^1.7.2",
+    "html-pdf-node": "^1.0.8",
     "next": "14.2.5",
     "openai": "^4.53.2",
     "postmark": "^4.0.4",
@@ -25,6 +26,7 @@
   "devDependencies": {
     "@testing-library/jest-dom": "^6.4.8",
     "@testing-library/react": "^16.0.0",
+    "@types/html-pdf-node": "^1.0.2",
     "@types/jest": "^29.5.12",
     "@types/node": "^20",
     "@types/react": "^18",

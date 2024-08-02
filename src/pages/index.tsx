@@ -48,6 +48,34 @@ export default function Home() {
     }
   };
 
+  const handleDownloadAsPdf = async () => {
+    if (!summary) return;
+
+    try {
+      const response = await axios.post(
+        "/api/downloadAsPdf",
+        { summary },
+        {
+          responseType: "blob",
+        }
+      );
+
+      const blob = new Blob([response.data], { type: "application/pdf" });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "summary.pdf";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        console.log(error.response?.data.error); // TODO : error toast
+      }
+    }
+  };
+
   return (
     <>
       <Head>
@@ -90,7 +118,10 @@ export default function Home() {
             <button onClick={handleSendEmail} disabled={!summary}>
               Email this to me
             </button>
-            <button>Download as PDF</button>
+
+            <button onClick={handleDownloadAsPdf} disabled={!summary}>
+              Download as PDF
+            </button>
           </section>
         </main>
       </SignedIn>

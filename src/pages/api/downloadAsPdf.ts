@@ -1,13 +1,11 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getAuth } from "@clerk/nextjs/server";
-import { ServerClient } from "postmark";
 import { Converter } from "showdown";
+import htmlToPdf from "html-pdf-node";
 
 const markdownToHTMLConverter = new Converter();
 
-const emailClient = new ServerClient(process.env.POSTMARK_API_KEY ?? "");
-
-type Response = "success" | { error: string };
+type Response = Buffer | { error: string };
 
 export default async function handler(
   req: NextApiRequest,
@@ -28,17 +26,24 @@ export default async function handler(
     return res.status(405).json({ error: "Wrong method" });
   }
 
-  try {
-    await emailClient.sendEmail({
-      From: "info@danielcooper.io",
-      To: "info@danielcooper.io",
-      Subject: "Your video summary",
-      HtmlBody: markdownToHTMLConverter.makeHtml(req.body.summary),
-    });
+  const html = markdownToHTMLConverter.makeHtml(req.body.summary);
 
-    return res.status(200).send("success");
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ error: (error as Error).message });
-  }
+  // TODO : styling etc
+  htmlToPdf.generatePdf(
+    { content: html },
+    { format: "A4" },
+    (error, pdfBuffer) => {
+      if (error) {
+        console.error(error);
+        return res.status(500).json({ error: error.message });
+      } else {
+        res.setHeader("Content-Type", "application/pdf");
+        res.setHeader(
+          "Content-Disposition",
+          "attachment; filename=summary.pdf"
+        );
+        res.status(200).send(Buffer.from(pdfBuffer));
+      }
+    }
+  );
 }
