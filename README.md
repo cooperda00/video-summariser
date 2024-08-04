@@ -1,5 +1,6 @@
 ## TODO :
 - Make PWA to keep on phone
+- Disable buttons whilst loading
 - Styles
 - Host
 
