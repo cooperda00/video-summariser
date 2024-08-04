@@ -4,6 +4,19 @@ import OpenAI from "openai";
 import { extractYoutubeVideoId } from "@/lib";
 import { getAuth } from "@clerk/nextjs/server";
 import { z } from "zod";
+import { createClient } from "redis";
+
+const { REDIS_PASSWORD, REDIS_HOST, REDIS_PORT } = process.env;
+
+const TTL = 86400 * 5; // 5 days
+
+const redis = createClient({
+  password: REDIS_PASSWORD,
+  socket: {
+    host: REDIS_HOST,
+    port: Number(REDIS_PORT),
+  },
+});
 
 const openAPI = new OpenAI({
   apiKey: process.env["OPENAI_API_KEY"],
@@ -19,6 +32,14 @@ type Response =
       summary: string;
     }
   | { error: string };
+
+const getRedisKey = (
+  userId: string,
+  type: "summary" | "transcripts",
+  videoId: string
+): string => {
+  return `user:${userId}:${type}:${videoId}`;
+};
 
 export default async function handler(
   req: NextApiRequest,
@@ -46,6 +67,22 @@ export default async function handler(
     return res.status(422).json({ error: "Cannot find video id" });
   }
 
+  const transcriptKey = getRedisKey(userId, "transcripts", videoID);
+  const summaryKey = getRedisKey(userId, "summary", videoID);
+
+  if (!redis.isOpen) {
+    await redis.connect();
+  }
+
+  const cachedTranscript = await redis.lRange(transcriptKey, 0, -1);
+  const cachedSummary = await redis.get(summaryKey);
+
+  if (cachedSummary && cachedTranscript) {
+    return res
+      .status(200)
+      .json({ summary: cachedSummary, transcript: cachedTranscript });
+  }
+
   try {
     const captions = await getSubtitles({
       videoID,
@@ -65,13 +102,22 @@ export default async function handler(
       ],
     });
 
-    if (!chatRes.choices.length || !chatRes.choices[0].message.content) {
+    const summary = chatRes.choices[0].message.content;
+
+    if (!chatRes.choices.length || !summary) {
       return res.status(500).json({ error: "Failed to create summary" });
     }
 
-    return res
-      .status(200)
-      .json({ transcript, summary: chatRes.choices[0].message.content });
+    await redis
+      .multi()
+      .del(transcriptKey)
+      .rPush(transcriptKey, transcript)
+      .expire(transcriptKey, TTL)
+      .set(summaryKey, summary)
+      .expire(summaryKey, TTL)
+      .exec();
+
+    return res.status(200).json({ transcript, summary });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: (error as Error).message });
