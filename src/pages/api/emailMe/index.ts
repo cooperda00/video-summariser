@@ -1,18 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getAuth } from "@clerk/nextjs/server";
-import { ServerClient } from "postmark";
 import { Converter } from "showdown";
-import { z } from "zod";
-
-const BodySchema = z.object({
-  summary: z.string(),
-});
+import { BodySchema, Response } from "./types";
+import { emailClient } from "./postmark";
 
 const markdownToHTMLConverter = new Converter();
-
-const emailClient = new ServerClient(process.env.POSTMARK_API_KEY ?? "");
-
-type Response = "success" | { error: string };
 
 export default async function handler(
   req: NextApiRequest,
