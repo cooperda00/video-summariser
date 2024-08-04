@@ -4,15 +4,20 @@ import styles from "./Home.module.css";
 import { FormEvent, useState } from "react";
 import axios, { AxiosError } from "axios";
 import ReactMarkdown from "react-markdown";
-import { RedirectToSignIn, SignedIn, SignedOut } from "@clerk/nextjs";
+import {
+  RedirectToSignIn,
+  SignedIn,
+  SignedOut,
+  UserButton,
+} from "@clerk/nextjs";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { isValidYoutubeURL } from "@/lib";
+import { AppHead } from "@/components/AppHead";
+import { Toast, ToastContent } from "@/components/Toast";
 
 type Input = {
   url: string;
 };
-
-const inter = Inter({ subsets: ["latin"] });
 
 export default function Home() {
   const {
@@ -23,6 +28,16 @@ export default function Home() {
 
   const [transcript, setTranscript] = useState<string[]>([]);
   const [summary, setSummary] = useState<string>("");
+  const [toastOpen, setToastOpen] = useState(false);
+  const [toastContent, setToastContent] = useState<ToastContent>({
+    title: "",
+    description: "",
+  });
+
+  const triggerToast = (toastContent: ToastContent) => {
+    setToastContent(toastContent);
+    setToastOpen(true);
+  };
 
   const onSubmit: SubmitHandler<Input> = async ({ url }) => {
     try {
@@ -37,7 +52,10 @@ export default function Home() {
       }
     } catch (error) {
       if (error instanceof AxiosError) {
-        console.log(error.response?.data.error); // TODO : error toast
+        triggerToast({
+          title: "❌ Failure",
+          description: error.response?.data.error,
+        });
       }
     }
   };
@@ -48,10 +66,16 @@ export default function Home() {
     try {
       await axios.post("/api/emailMe", { summary });
 
-      // TODO : success toast
+      triggerToast({
+        title: "✅ Success",
+        description: "Your summary has been sent successfully",
+      });
     } catch (error) {
       if (error instanceof AxiosError) {
-        console.log(error.response?.data.error); // TODO : error toast
+        triggerToast({
+          title: "❌ Failure",
+          description: error.response?.data.error,
+        });
       }
     }
   };
@@ -79,29 +103,26 @@ export default function Home() {
       window.URL.revokeObjectURL(url);
     } catch (error) {
       if (error instanceof AxiosError) {
-        console.log(error.response?.data.error); // TODO : error toast
+        triggerToast({
+          title: "❌ Failure",
+          description: error.response?.data.error,
+        });
       }
     }
   };
 
   return (
     <>
-      <Head>
-        <title>Video Summariser</title>
-        <meta
-          name="description"
-          content="Paste a youtube link and get a text summary - perfect for when you don't have 3 hours to listen to a podcast"
-        />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+      <AppHead />
 
       <SignedOut>
         <RedirectToSignIn />
       </SignedOut>
 
       <SignedIn>
-        <main className={`${styles.main} ${inter.className}`}>
+        <UserButton />
+
+        <div className={styles.main}>
           <form onSubmit={handleSubmit(onSubmit)}>
             <label htmlFor="videoURL">Video URL</label>
 
@@ -140,7 +161,9 @@ export default function Home() {
               Download as PDF
             </button>
           </section>
-        </main>
+        </div>
+
+        <Toast {...toastContent} open={toastOpen} onOpenChange={setToastOpen} />
       </SignedIn>
     </>
   );

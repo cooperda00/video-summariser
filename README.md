@@ -1,8 +1,8 @@
 ## TODO :
-- Error toasts to communicate the particular errors
+- Make PWA to keep on phone
 - Styles
 - Host
-- Make PWA to keep on phone
+
 
 ## Challenges Faced / Decisions Made:
 I wanted to use the offical google apis but I would need extra permissions to download captions despite them being publically available. I resorted to using a 3rd party scraping library instead.

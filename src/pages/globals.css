@@ -16,3 +16,8 @@ p {
 .cl-footer .cl-footerAction .cl-footerAction__signIn {
   display: none !important;
 }
+
+main {
+  height: 100vh;
+  width: 100vw;
+}
