@@ -2,7 +2,6 @@
 - Error toasts to communicate the particular errors
 - Styles
 - Host
-- Some sort of cache to hold latest transcript/summary for each videoId? Try redis service? + a 'recents' tab
 
 ## Challenges Faced / Decisions Made:
 I wanted to use the offical google apis but I would need extra permissions to download captions despite them being publically available. I resorted to using a 3rd party scraping library instead.

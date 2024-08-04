@@ -1,45 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getSubtitles } from "youtube-captions-scraper";
-import OpenAI from "openai";
 import { extractYoutubeVideoId } from "@/lib";
 import { getAuth } from "@clerk/nextjs/server";
-import { z } from "zod";
-import { createClient } from "redis";
-
-const { REDIS_PASSWORD, REDIS_HOST, REDIS_PORT } = process.env;
-
-const TTL = 86400 * 5; // 5 days
-
-const redis = createClient({
-  password: REDIS_PASSWORD,
-  socket: {
-    host: REDIS_HOST,
-    port: Number(REDIS_PORT),
-  },
-});
-
-const openAPI = new OpenAI({
-  apiKey: process.env["OPENAI_API_KEY"],
-});
-
-const BodySchema = z.object({
-  url: z.string().url(),
-});
-
-type Response =
-  | {
-      transcript: string[];
-      summary: string;
-    }
-  | { error: string };
-
-const getRedisKey = (
-  userId: string,
-  type: "summary" | "transcripts",
-  videoId: string
-): string => {
-  return `user:${userId}:${type}:${videoId}`;
-};
+import { Response, BodySchema } from "./types";
+import { getRedisKey, redis, TTL } from "./redis";
+import { openAI, systemPrompt } from "./openAI";
 
 export default async function handler(
   req: NextApiRequest,
@@ -70,34 +35,30 @@ export default async function handler(
   const transcriptKey = getRedisKey(userId, "transcripts", videoID);
   const summaryKey = getRedisKey(userId, "summary", videoID);
 
-  if (!redis.isOpen) {
-    await redis.connect();
-  }
-
-  const cachedTranscript = await redis.lRange(transcriptKey, 0, -1);
-  const cachedSummary = await redis.get(summaryKey);
-
-  if (cachedSummary && cachedTranscript) {
-    return res
-      .status(200)
-      .json({ summary: cachedSummary, transcript: cachedTranscript });
-  }
-
   try {
+    if (!redis.isOpen) {
+      await redis.connect();
+    }
+
+    const cachedTranscript = await redis.lRange(transcriptKey, 0, -1);
+    const cachedSummary = await redis.get(summaryKey);
+
+    if (cachedSummary && cachedTranscript.length) {
+      return res
+        .status(200)
+        .json({ summary: cachedSummary, transcript: cachedTranscript });
+    }
+
     const captions = await getSubtitles({
       videoID,
     });
 
     const transcript = captions.map((caption) => caption.text);
 
-    const chatRes = await openAPI.chat.completions.create({
+    const chatRes = await openAI.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
-        {
-          role: "system",
-          content:
-            "You are a helpful assistant. A user will provide you with a transcript, your job is to read it and generate a summary. This summary should be a bullet pointed list with the main ideas. Ensure that there is no repetion. For each main idea provide the specific details as sub-bullet points. If there are any facts or statistics, include those in the sub bullet points.",
-        },
+        systemPrompt,
         { role: "user", content: transcript.join("\n") },
       ],
     });
