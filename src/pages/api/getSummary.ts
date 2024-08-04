@@ -3,9 +3,14 @@ import { getSubtitles } from "youtube-captions-scraper";
 import OpenAI from "openai";
 import { extractYoutubeVideoId } from "@/lib";
 import { getAuth } from "@clerk/nextjs/server";
+import { z } from "zod";
 
 const openAPI = new OpenAI({
-  apiKey: process.env["OPENAI_API_KEY"], // This is the default and can be omitted
+  apiKey: process.env["OPENAI_API_KEY"],
+});
+
+const BodySchema = z.object({
+  url: z.string().url(),
 });
 
 type Response =
@@ -29,12 +34,13 @@ export default async function handler(
     return res.status(405).json({ error: "Wrong method" });
   }
 
-  // Validate with Zod
-  if (!req.body.url) {
-    return res.status(400).json({ error: "No url provided" });
+  const { data, error } = BodySchema.safeParse(req.body);
+
+  if (!data && error) {
+    return res.status(400).json({ error: error.message });
   }
 
-  const videoID = extractYoutubeVideoId(req.body.url);
+  const videoID = extractYoutubeVideoId(data.url);
 
   if (!videoID) {
     return res.status(422).json({ error: "Cannot find video id" });
@@ -53,7 +59,7 @@ export default async function handler(
         {
           role: "system",
           content:
-            "You are a helpful assistant. A user will provide you with a transcript, your job is to read it and generate a succinct summary. This summary should be a bullet pointed list with the main ideas. Ensure that there is no repetion. For each main idea, if it is relevant to do so provide the specifics as sub-bullet points. If there are any facts or statistics, include those.",
+            "You are a helpful assistant. A user will provide you with a transcript, your job is to read it and generate a summary. This summary should be a bullet pointed list with the main ideas. Ensure that there is no repetion. For each main idea provide the specific details as sub-bullet points. If there are any facts or statistics, include those in the sub bullet points.",
         },
         { role: "user", content: transcript.join("\n") },
       ],

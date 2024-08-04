@@ -2,6 +2,11 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { getAuth } from "@clerk/nextjs/server";
 import { Converter } from "showdown";
 import htmlToPdf from "html-pdf-node";
+import { z } from "zod";
+
+const BodySchema = z.object({
+  summary: z.string(),
+});
 
 const markdownToHTMLConverter = new Converter();
 
@@ -17,18 +22,18 @@ export default async function handler(
     return res.status(401).json({ error: "You are not authenticated" });
   }
 
-  // TODO : Validate with Zod
-  if (!req.body.summary) {
-    return res.status(400).json({ error: "No summary provided" });
-  }
-
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Wrong method" });
   }
 
-  const html = markdownToHTMLConverter.makeHtml(req.body.summary);
+  const { data, error } = BodySchema.safeParse(req.body);
 
-  // TODO : styling etc
+  if (!data && error) {
+    return res.status(400).json({ error: error.message });
+  }
+
+  const html = markdownToHTMLConverter.makeHtml(data.summary);
+
   htmlToPdf.generatePdf(
     { content: html },
     { format: "A4" },

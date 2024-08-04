@@ -21,7 +21,8 @@
     "react-markdown": "^9.0.1",
     "showdown": "^2.1.0",
     "ts-node": "^10.9.2",
-    "youtube-captions-scraper": "^2.0.3"
+    "youtube-captions-scraper": "^2.0.3",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.4.8",

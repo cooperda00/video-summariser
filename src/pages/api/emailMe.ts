@@ -2,6 +2,11 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { getAuth } from "@clerk/nextjs/server";
 import { ServerClient } from "postmark";
 import { Converter } from "showdown";
+import { z } from "zod";
+
+const BodySchema = z.object({
+  summary: z.string(),
+});
 
 const markdownToHTMLConverter = new Converter();
 
@@ -19,13 +24,14 @@ export default async function handler(
     return res.status(401).json({ error: "You are not authenticated" });
   }
 
-  // TODO : Validate with Zod
-  if (!req.body.summary) {
-    return res.status(400).json({ error: "No summary provided" });
-  }
-
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Wrong method" });
+  }
+
+  const { data, error } = BodySchema.safeParse(req.body);
+
+  if (!data && error) {
+    return res.status(400).json({ error: error.message });
   }
 
   try {
@@ -33,7 +39,7 @@ export default async function handler(
       From: "info@danielcooper.io",
       To: "info@danielcooper.io",
       Subject: "Your video summary",
-      HtmlBody: markdownToHTMLConverter.makeHtml(req.body.summary),
+      HtmlBody: markdownToHTMLConverter.makeHtml(data.summary),
     });
 
     return res.status(200).send("success");
