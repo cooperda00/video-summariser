@@ -5,20 +5,28 @@ import { FormEvent, useState } from "react";
 import axios, { AxiosError } from "axios";
 import ReactMarkdown from "react-markdown";
 import { RedirectToSignIn, SignedIn, SignedOut } from "@clerk/nextjs";
+import { useForm, SubmitHandler } from "react-hook-form";
+import { isValidYoutubeURL } from "@/lib";
+
+type Input = {
+  url: string;
+};
 
 const inter = Inter({ subsets: ["latin"] });
 
 export default function Home() {
-  const [input, setInput] = useState("");
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<Input>();
 
   const [transcript, setTranscript] = useState<string[]>([]);
   const [summary, setSummary] = useState<string>("");
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
+  const onSubmit: SubmitHandler<Input> = async ({ url }) => {
     try {
-      const res = await axios.post("/api/getSummary", { url: input });
+      const res = await axios.post("/api/getSummary", { url: url });
 
       if (res.data.transcript) {
         setTranscript(res.data.transcript);
@@ -94,14 +102,23 @@ export default function Home() {
 
       <SignedIn>
         <main className={`${styles.main} ${inter.className}`}>
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit(onSubmit)}>
             <label htmlFor="videoURL">Video URL</label>
 
             <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
+              id="videoURL"
+              {...register("url", {
+                validate: (str) => {
+                  const { isValid } = isValidYoutubeURL(str);
+                  return isValid || "Please enter a valid YouTube URL.";
+                },
+              })}
+              placeholder="http://www.youtube.com/watch?v=-wtIMTCHWuI"
             />
+
+            {errors.url && (
+              <span className={styles.error}>{errors.url.message}</span>
+            )}
 
             <button type="submit">Submit</button>
           </form>

@@ -1,6 +1,5 @@
 ## TODO :
 - Error toasts to communicate the particular errors
-- Form validation using isValidYoutubeURL
 - Styles
 - Host
 - Make PWA to keep on phone
