@@ -8,7 +8,7 @@ const BodySchema = z.object({
   summary: z.string(),
 });
 
-type Response = Buffer | { error: string };
+type Response = "Success" | { error: string };
 
 const markdownToHTMLConverter = new Converter();
 
@@ -23,7 +23,6 @@ export default async function handler(
   }
 
   if (req.method !== "POST") {
-    console.log(req.method);
     return res.status(405).json({ error: "Wrong method" });
   }
 
@@ -48,7 +47,7 @@ export default async function handler(
           "Content-Disposition",
           "attachment; filename=summary.pdf"
         );
-        res.status(200).send(Buffer.from(pdfBuffer));
+        res.status(200).send("Success");
       }
     }
   );

@@ -99,21 +99,23 @@ export default function Home() {
     try {
       const response = await axios.post(
         "/api/downloadAsPdf",
-        { summary },
-        {
-          responseType: "blob",
-        }
+        { summary }
+        // {
+        //   responseType: "blob",
+        // }
       );
 
-      const blob = new Blob([response.data], { type: "application/pdf" });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "summary.pdf";
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      window.URL.revokeObjectURL(url);
+      alert("Success");
+
+      // const blob = new Blob([response.data], { type: "application/pdf" });
+      // const url = window.URL.createObjectURL(blob);
+      // const a = document.createElement("a");
+      // a.href = url;
+      // a.download = "summary.pdf";
+      // document.body.appendChild(a);
+      // a.click();
+      // a.remove();
+      // window.URL.revokeObjectURL(url);
     } catch (error) {
       if (error instanceof AxiosError) {
         triggerToast({
