@@ -10,7 +10,7 @@ const withPWA = PWA({
 });
 
 const nextConfig = {
-  reactStrictMode: true,
+  reactStrictMode: process.env.NODE_ENV === "development",
 };
 
 export default withPWA(nextConfig);

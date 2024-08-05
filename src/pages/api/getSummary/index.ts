@@ -7,6 +7,10 @@ import { createClient } from "redis";
 import OpenAI from "openai";
 import { ChatCompletionMessageParam } from "openai/resources/index.mjs";
 
+export const config = {
+  maxDuration: 60, // Allow max (free) duration on vercel
+};
+
 const { OPENAI_API_KEY } = process.env;
 
 const openAI = new OpenAI({

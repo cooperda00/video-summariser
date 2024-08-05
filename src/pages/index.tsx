@@ -172,7 +172,6 @@ export default function Home() {
                 {!emailLoading ? "Email this to me" : "Loading..."}
               </button>
 
-              {/* TODO : icon for button */}
               <button onClick={handleDownloadAsPdf} disabled={!summary}>
                 <PiFilePdf className={styles.icon} />
                 {!pdfLoading ? "Download as PDF" : "Loading..."}
