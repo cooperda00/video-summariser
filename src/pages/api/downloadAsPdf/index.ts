@@ -1,16 +1,16 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getAuth } from "@clerk/nextjs/server";
 import { Converter } from "showdown";
-import htmlToPdf from "html-pdf-node";
 import { z } from "zod";
+import axios, { AxiosError } from "axios";
 
 const BodySchema = z.object({
   summary: z.string(),
 });
 
-type Response = "Success" | { error: string };
+type Response = { url: string } | { error: string };
 
-const markdownToHTMLConverter = new Converter();
+const markdownToHTMLConverter = new Converter({});
 
 export default async function handler(
   req: NextApiRequest,
@@ -34,21 +34,26 @@ export default async function handler(
 
   const html = markdownToHTMLConverter.makeHtml(data.summary);
 
-  htmlToPdf.generatePdf(
-    { content: html },
-    { format: "A4" },
-    (error, pdfBuffer) => {
-      if (error) {
-        console.error(error);
-        return res.status(500).json({ error: error.message });
-      } else {
-        res.setHeader("Content-Type", "application/pdf");
-        res.setHeader(
-          "Content-Disposition",
-          "attachment; filename=summary.pdf"
-        );
-        res.status(200).send("Success");
-      }
+  const source = `
+  <html>
+  ${html}
+  </html>
+  `
+    .split("\n")
+    .map((line) => line.trim())
+    .join("");
+
+  try {
+    const pdfRes = await axios.post(
+      "https://pdfswitch.io/api/convert/",
+      { source, filename: "summary.pdf" },
+      { headers: { Authorization: `Bearer ${process.env.PDF_SWITCH_API_KEY}` } }
+    );
+
+    res.status(200).send({ url: pdfRes.data.url });
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      res.status(error.status ?? 500).send({ error: error.message });
     }
-  );
+  }
 }

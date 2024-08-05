@@ -97,25 +97,11 @@ export default function Home() {
     setPdfLoading(true);
 
     try {
-      const response = await axios.post(
-        "/api/downloadAsPdf",
-        { summary }
-        // {
-        //   responseType: "blob",
-        // }
-      );
+      const response = await axios.post("/api/downloadAsPdf", { summary });
 
-      alert("Success");
+      const url = response.data.url;
 
-      // const blob = new Blob([response.data], { type: "application/pdf" });
-      // const url = window.URL.createObjectURL(blob);
-      // const a = document.createElement("a");
-      // a.href = url;
-      // a.download = "summary.pdf";
-      // document.body.appendChild(a);
-      // a.click();
-      // a.remove();
-      // window.URL.revokeObjectURL(url);
+      window.open(url, "_blank");
     } catch (error) {
       if (error instanceof AxiosError) {
         triggerToast({
