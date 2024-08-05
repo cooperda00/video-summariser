@@ -1,37 +1,131 @@
 .main {
   display: grid;
-  height: 95vh;
+  height: 100vh;
   overflow: hidden;
-  grid-template-rows: auto 1fr;
-  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto 1fr auto 1fr;
+  grid-template-columns: 1fr;
   justify-content: center;
-  gap: 3rem;
-  padding: 5rem;
-}
-
-.main form {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-  grid-column: span 2;
-  width: 100%;
-}
-
-.main form label,
-.main form input,
-.main form button {
-  display: block;
-  width: 10rem;
+  gap: 1.6rem;
+  padding: 2.4rem;
 }
 
 .main section {
   overflow-y: auto;
-  width: 100%;
-  font-size: 2rem;
   overflow-x: hidden;
+  width: 100%;
+  font-size: 1.6rem;
+  padding: 0 2.4rem;
 }
 
-.main ul {
+.controls {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1.8rem;
+}
+
+.controls form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.8rem;
+  width: 100%;
+  max-width: 50rem;
+  padding-top: 2.4rem;
+}
+
+.controls form label,
+.controls form input,
+.controls form button {
+  display: block;
+  width: 100%;
+}
+
+.controls form button {
+  border: 0.2rem solid var(--palette-gray-2);
+}
+
+.controls div button:disabled {
+  color: var(--palette-gray-1);
+}
+
+.controls form button:disabled {
+  border: 0.2rem solid var(--palette-gray-1);
+  color: var(--palette-gray-1);
+}
+
+.controls form input,
+.controls form button {
+  padding: 0.4rem 1.2rem;
+}
+
+.controls form input {
+  border: 1px solid var(--palette-gray-1);
+}
+
+.controls form input::placeholder {
+  color: var(--palette-gray-2);
+}
+
+.controls div {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 0.4rem;
+}
+
+.controls div button {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+}
+
+.summary,
+.transcript {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.summary > div,
+.transcript > div {
+  max-width: 120rem;
+}
+
+.summary ul {
   list-style: disc;
+}
+
+.divider {
+  height: 1px;
+  width: 100%;
+  background-color: var(--palette-gray-2);
+}
+
+.error {
+  color: var(--palette-error);
+  align-self: flex-start;
+  font-size: 1.2rem;
+}
+
+.signOut {
+  height: 2rem;
+  width: 2rem;
+  top: 1.2rem;
+  left: 1.2rem;
+  position: fixed;
+}
+
+.signOutIcon {
+  color: var(--palette-gray-2);
+  height: 100%;
+  width: 100%;
+}
+
+.icon {
+  color: var(--palette-gray-1);
 }

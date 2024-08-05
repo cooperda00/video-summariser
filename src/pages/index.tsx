@@ -6,12 +6,14 @@ import {
   RedirectToSignIn,
   SignedIn,
   SignedOut,
-  UserButton,
+  SignOutButton,
 } from "@clerk/nextjs";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { isValidYoutubeURL } from "@/lib";
 import { AppHead } from "@/components/AppHead";
 import { Toast, ToastContent } from "@/components/Toast";
+import { PiFilePdf, PiSignOutFill } from "react-icons/pi";
+import { TbMailShare } from "react-icons/tb";
 
 type Input = {
   url: string;
@@ -133,49 +135,76 @@ export default function Home() {
       </SignedOut>
 
       <SignedIn>
-        <UserButton />
+        <SignOutButton>
+          <div className={styles.signOut}>
+            <PiSignOutFill className={styles.signOutIcon} />
+          </div>
+        </SignOutButton>
 
         <div className={styles.main}>
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <label htmlFor="videoURL">Video URL</label>
+          <section className={styles.controls}>
+            <form onSubmit={handleSubmit(onSubmit)}>
+              <label htmlFor="videoURL">Youtube URL</label>
 
-            <input
-              id="videoURL"
-              {...register("url", {
-                validate: (str) => {
-                  const { isValid } = isValidYoutubeURL(str);
-                  return isValid || "Please enter a valid YouTube URL.";
-                },
-              })}
-              placeholder="http://www.youtube.com/watch?v=-wtIMTCHWuI"
-            />
+              <input
+                id="videoURL"
+                {...register("url", {
+                  validate: (str) => {
+                    const { isValid } = isValidYoutubeURL(str);
+                    return isValid || "Please enter a valid YouTube URL.";
+                  },
+                })}
+                placeholder="http://www.youtube.com/watch?v=-wtIMTCHWuI"
+              />
 
-            {errors.url && (
-              <span className={styles.error}>{errors.url.message}</span>
-            )}
+              {errors.url && (
+                <span className={styles.error}>{errors.url.message}</span>
+              )}
 
-            <button type="submit" disabled={summaryLoading}>
-              {!summaryLoading ? "Generate" : "Loading..."}
-            </button>
-          </form>
+              <button type="submit" disabled={summaryLoading}>
+                {!summaryLoading ? "Generate summary" : "Loading..."}
+              </button>
+            </form>
 
-          <section>
-            {transcript.map((line, i) => (
-              <p key={i}>{line}</p>
-            ))}
+            <div>
+              <button onClick={handleSendEmail} disabled={!summary}>
+                <TbMailShare className={styles.icon} />
+                {!emailLoading ? "Email this to me" : "Loading..."}
+              </button>
+
+              {/* TODO : icon for button */}
+              <button onClick={handleDownloadAsPdf} disabled={!summary}>
+                <PiFilePdf className={styles.icon} />
+                {!pdfLoading ? "Download as PDF" : "Loading..."}
+              </button>
+            </div>
           </section>
 
-          <section>
-            <ReactMarkdown>{summary}</ReactMarkdown>
+          {summary && transcript.length && (
+            <>
+              <div className={styles.divider} />
 
-            <button onClick={handleSendEmail} disabled={!summary}>
-              {!emailLoading ? "Email this to me" : "Loading..."}
-            </button>
+              {/* TODO : Radix Accordion : hidden by default */}
 
-            <button onClick={handleDownloadAsPdf} disabled={!summary}>
-              {!pdfLoading ? "Download as PDF" : "Loading..."}
-            </button>
-          </section>
+              <section className={styles.transcript}>
+                <div>
+                  {transcript.map((line, i) => (
+                    <p key={i}>{line}</p>
+                  ))}
+                </div>
+              </section>
+
+              <div className={styles.divider} />
+
+              {/* TODO : Radix Accordion: shown by default */}
+
+              <section className={styles.summary}>
+                <div>
+                  <ReactMarkdown>{summary}</ReactMarkdown>
+                </div>
+              </section>
+            </>
+          )}
         </div>
 
         <Toast {...toastContent} open={toastOpen} onOpenChange={setToastOpen} />
