@@ -34,23 +34,21 @@ export default async function handler(
 
   const html = markdownToHTMLConverter.makeHtml(data.summary);
 
-  res.status(200).send("Success");
-
-  // htmlToPdf.generatePdf(
-  //   { content: html },
-  //   { format: "A4" },
-  //   (error, pdfBuffer) => {
-  //     if (error) {
-  //       console.error(error);
-  //       return res.status(500).json({ error: error.message });
-  //     } else {
-  //       res.setHeader("Content-Type", "application/pdf");
-  //       res.setHeader(
-  //         "Content-Disposition",
-  //         "attachment; filename=summary.pdf"
-  //       );
-  //       res.status(200).send(Buffer.from(pdfBuffer));
-  //     }
-  //   }
-  // );
+  htmlToPdf.generatePdf(
+    { content: html },
+    { format: "A4" },
+    (error, pdfBuffer) => {
+      if (error) {
+        console.error(error);
+        return res.status(500).json({ error: error.message });
+      } else {
+        res.setHeader("Content-Type", "application/pdf");
+        res.setHeader(
+          "Content-Disposition",
+          "attachment; filename=summary.pdf"
+        );
+        res.status(200).send("Success");
+      }
+    }
+  );
 }
