@@ -1,10 +1,26 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getSubtitles } from "youtube-captions-scraper";
-import { extractYoutubeVideoId } from "@/lib";
+import {
+  extractYoutubeVideoId,
+  getRedisKey,
+  redis,
+  TTL,
+  openAI,
+  systemPrompt,
+} from "@/lib";
 import { getAuth } from "@clerk/nextjs/server";
-import { Response, BodySchema } from "./types";
-import { getRedisKey, redis, TTL } from "./redis";
-import { openAI, systemPrompt } from "./openAI";
+import { z } from "zod";
+
+export const BodySchema = z.object({
+  url: z.string().url(),
+});
+
+export type Response =
+  | {
+      transcript: string[];
+      summary: string;
+    }
+  | { error: string };
 
 export default async function handler(
   req: NextApiRequest,

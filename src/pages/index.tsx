@@ -1,7 +1,5 @@
-import Head from "next/head";
-import { Inter } from "next/font/google";
 import styles from "./Home.module.css";
-import { FormEvent, useState } from "react";
+import { useState } from "react";
 import axios, { AxiosError } from "axios";
 import ReactMarkdown from "react-markdown";
 import {
@@ -33,6 +31,9 @@ export default function Home() {
     title: "",
     description: "",
   });
+  const [summaryLoading, setSummaryLoading] = useState(false);
+  const [emailLoading, setEmailLoading] = useState(false);
+  const [pdfLoading, setPdfLoading] = useState(false);
 
   const triggerToast = (toastContent: ToastContent) => {
     setToastContent(toastContent);
@@ -40,6 +41,8 @@ export default function Home() {
   };
 
   const onSubmit: SubmitHandler<Input> = async ({ url }) => {
+    setSummaryLoading(true);
+
     try {
       const res = await axios.post("/api/getSummary", { url: url });
 
@@ -57,11 +60,15 @@ export default function Home() {
           description: error.response?.data.error,
         });
       }
+    } finally {
+      setSummaryLoading(false);
     }
   };
 
   const handleSendEmail = async () => {
     if (!summary) return;
+
+    setEmailLoading(true);
 
     try {
       await axios.post("/api/emailMe", { summary });
@@ -77,11 +84,15 @@ export default function Home() {
           description: error.response?.data.error,
         });
       }
+    } finally {
+      setEmailLoading(false);
     }
   };
 
   const handleDownloadAsPdf = async () => {
     if (!summary) return;
+
+    setPdfLoading(true);
 
     try {
       const response = await axios.post(
@@ -108,6 +119,8 @@ export default function Home() {
           description: error.response?.data.error,
         });
       }
+    } finally {
+      setPdfLoading(false);
     }
   };
 
@@ -141,7 +154,9 @@ export default function Home() {
               <span className={styles.error}>{errors.url.message}</span>
             )}
 
-            <button type="submit">Submit</button>
+            <button type="submit" disabled={summaryLoading}>
+              {!summaryLoading ? "Generate" : "Loading..."}
+            </button>
           </form>
 
           <section>
@@ -154,11 +169,11 @@ export default function Home() {
             <ReactMarkdown>{summary}</ReactMarkdown>
 
             <button onClick={handleSendEmail} disabled={!summary}>
-              Email this to me
+              {!emailLoading ? "Email this to me" : "Loading..."}
             </button>
 
             <button onClick={handleDownloadAsPdf} disabled={!summary}>
-              Download as PDF
+              {!pdfLoading ? "Download as PDF" : "Loading..."}
             </button>
           </section>
         </div>

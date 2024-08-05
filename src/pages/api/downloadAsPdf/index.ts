@@ -2,7 +2,13 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { getAuth } from "@clerk/nextjs/server";
 import { Converter } from "showdown";
 import htmlToPdf from "html-pdf-node";
-import { BodySchema, Response } from "./types";
+import { z } from "zod";
+
+const BodySchema = z.object({
+  summary: z.string(),
+});
+
+type Response = Buffer | { error: string };
 
 const markdownToHTMLConverter = new Converter();
 

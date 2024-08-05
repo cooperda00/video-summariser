@@ -1,8 +1,14 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getAuth } from "@clerk/nextjs/server";
 import { Converter } from "showdown";
-import { BodySchema, Response } from "./types";
-import { emailClient } from "./postmark";
+import { emailClient } from "@/lib/postmark";
+import { z } from "zod";
+
+export const BodySchema = z.object({
+  summary: z.string(),
+});
+
+export type Response = "success" | { error: string };
 
 const markdownToHTMLConverter = new Converter();
 
