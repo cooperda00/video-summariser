@@ -1,7 +1,4 @@
-## TODO :
-- Make sections collapsable
-- Give pwa icons a white bg
-- Record a demo video 
+
 
 ## Challenges Faced / Decisions Made:
 - I wanted to use the offical google apis but I would need extra permissions to download captions despite them being publically available. I resorted to using a 3rd party scraping library instead.

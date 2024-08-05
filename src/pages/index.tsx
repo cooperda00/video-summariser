@@ -184,8 +184,6 @@ export default function Home() {
             <>
               <div className={styles.divider} />
 
-              {/* TODO : Radix Accordion : hidden by default */}
-
               <section className={styles.transcript}>
                 <div>
                   {transcript.map((line, i) => (
@@ -195,8 +193,6 @@ export default function Home() {
               </section>
 
               <div className={styles.divider} />
-
-              {/* TODO : Radix Accordion: shown by default */}
 
               <section className={styles.summary}>
                 <div>
