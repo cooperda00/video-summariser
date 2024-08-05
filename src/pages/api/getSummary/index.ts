@@ -1,21 +1,53 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getSubtitles } from "youtube-captions-scraper";
-import {
-  extractYoutubeVideoId,
-  getRedisKey,
-  redis,
-  TTL,
-  openAI,
-  systemPrompt,
-} from "@/lib";
+import { extractYoutubeVideoId } from "@/lib";
 import { getAuth } from "@clerk/nextjs/server";
 import { z } from "zod";
+import { createClient } from "redis";
+import OpenAI from "openai";
+import { ChatCompletionMessageParam } from "openai/resources/index.mjs";
 
-export const BodySchema = z.object({
+const { OPENAI_API_KEY } = process.env;
+
+const openAI = new OpenAI({
+  apiKey: OPENAI_API_KEY,
+});
+
+const systemPrompt: ChatCompletionMessageParam = {
+  role: "system",
+  content: `
+  You are a helpful assistant. 
+  A user will provide you with a transcript, your job is to read it and generate a summary. 
+  This summary should be a bullet pointed list with the main ideas. Ensure that there is no repetion. 
+  For each main idea provide the specific details as sub-bullet points. 
+  If there are any facts or statistics, include those in the sub bullet points.`,
+};
+
+const { REDIS_PASSWORD, REDIS_HOST, REDIS_PORT } = process.env;
+
+const redis = createClient({
+  password: REDIS_PASSWORD,
+  socket: {
+    host: REDIS_HOST,
+    port: Number(REDIS_PORT),
+  },
+});
+
+const TTL = 86400 * 5; // 5 days
+
+const getRedisKey = (
+  userId: string,
+  type: "summary" | "transcripts",
+  videoId: string
+): string => {
+  return `user:${userId}:${type}:${videoId}`;
+};
+
+const BodySchema = z.object({
   url: z.string().url(),
 });
 
-export type Response =
+type Response =
   | {
       transcript: string[];
       summary: string;

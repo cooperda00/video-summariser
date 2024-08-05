@@ -1,14 +1,16 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getAuth } from "@clerk/nextjs/server";
 import { Converter } from "showdown";
-import { emailClient } from "@/lib/postmark";
 import { z } from "zod";
+import { ServerClient } from "postmark";
 
-export const BodySchema = z.object({
+const emailClient = new ServerClient(process.env.POSTMARK_API_KEY ?? "");
+
+const BodySchema = z.object({
   summary: z.string(),
 });
 
-export type Response = "success" | { error: string };
+type Response = "success" | { error: string };
 
 const markdownToHTMLConverter = new Converter();
 
