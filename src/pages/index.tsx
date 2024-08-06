@@ -14,6 +14,7 @@ import { AppHead } from "@/components/AppHead";
 import { Toast, ToastContent } from "@/components/Toast";
 import { PiFilePdf, PiSignOutFill } from "react-icons/pi";
 import { TbMailShare } from "react-icons/tb";
+import download from "downloadjs";
 
 type Input = {
   url: string;
@@ -98,10 +99,7 @@ export default function Home() {
 
     try {
       const response = await axios.post("/api/downloadAsPdf", { summary });
-
-      const url = response.data.url;
-
-      window.open(url, "_blank");
+      download(response.data.url, "summary.pdf", "application/pdf");
     } catch (error) {
       if (error instanceof AxiosError) {
         triggerToast({
