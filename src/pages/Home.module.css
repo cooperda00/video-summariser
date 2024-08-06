@@ -6,7 +6,7 @@
   grid-template-columns: 1fr;
   justify-content: center;
   gap: 1.6rem;
-  padding: 2.4rem;
+  padding: 1.8rem;
 }
 
 .main section {
@@ -23,6 +23,7 @@
   justify-content: center;
   align-items: center;
   gap: 1.8rem;
+  border-bottom: 1px solid var(--palette-gray-2);
 }
 
 .controls form {
@@ -74,6 +75,7 @@
   justify-content: flex-start;
   align-items: flex-start;
   gap: 0.4rem;
+  padding-bottom: 1.8rem;
 }
 
 .controls div button {
@@ -97,12 +99,6 @@
 
 .summary ul {
   list-style: disc;
-}
-
-.divider {
-  height: 1px;
-  width: 100%;
-  background-color: var(--palette-gray-2);
 }
 
 .error {
@@ -134,6 +130,7 @@
   justify-content: center;
   align-items: center;
   gap: 1rem;
+  padding-bottom: 1.2rem;
 }
 
 .transcript {

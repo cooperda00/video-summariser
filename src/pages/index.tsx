@@ -169,30 +169,25 @@ export default function Home() {
             </div>
           </section>
 
-          {summary && transcript.length && (
-            <>
-              {/* Replace with border-bottom */}
-              <div className={styles.divider} />
+          {summary && (
+            <section className={styles.summary}>
+              <header>
+                <h2>
+                  <em>Summary</em>
+                </h2>
+                <button
+                  aria-label="View transcript"
+                  disabled={!transcript}
+                  onClick={() => setModalOpen(true)}
+                >
+                  <CgTranscript />
+                </button>
+              </header>
 
-              <section className={styles.summary}>
-                <header>
-                  <h2>
-                    <em>Summary</em>
-                  </h2>
-                  <button
-                    aria-label="View transcript"
-                    disabled={!transcript}
-                    onClick={() => setModalOpen(true)}
-                  >
-                    <CgTranscript />
-                  </button>
-                </header>
-
-                <div>
-                  <ReactMarkdown>{summary}</ReactMarkdown>
-                </div>
-              </section>
-            </>
+              <div>
+                <ReactMarkdown>{summary}</ReactMarkdown>
+              </div>
+            </section>
           )}
         </div>
 
