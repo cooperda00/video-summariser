@@ -1,0 +1,107 @@
+@keyframes enter {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes exit {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes slideUp {
+  0% {
+    transform: translateY(100%);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(100%);
+  }
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 100vw;
+  background-color: transparent;
+  cursor: pointer;
+
+  &[data-state="open"] {
+    animation-duration: 300ms;
+    animation-timing-function: ease;
+    animation-name: enter;
+  }
+
+  &[data-state="closed"] {
+    animation-duration: 300ms;
+    animation-timing-function: ease;
+    animation-name: exit;
+  }
+}
+
+.content {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  height: auto;
+  max-height: 90dvh;
+  width: 100vw;
+  background-color: var(--palette-primary);
+  border-radius: 0.8rem 0.8rem 0 0;
+  display: grid;
+  grid-template: auto 1fr/ 1fr;
+  border-top: 0.2rem solid var(--palette-gray-2);
+
+  &[data-fullscreen="true"] {
+    height: calc(var(100vh) - 2rem);
+    max-height: calc(var(100vh) - 2rem);
+  }
+
+  &[data-state="open"] {
+    animation-duration: 300ms;
+    animation-timing-function: ease-out;
+    animation-name: slideUp;
+  }
+
+  &[data-state="closed"] {
+    animation-duration: 300ms;
+    animation-timing-function: ease-in;
+    animation-name: slideDown;
+  }
+}
+
+.content > button {
+  padding: 1.6rem 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.content > button span {
+  display: block;
+  width: 4rem;
+  height: 0.2rem;
+  background-color: var(--palette-gray-2);
+}
+
+.content > div {
+  overflow: hidden;
+}

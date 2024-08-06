@@ -15,6 +15,8 @@ import { Toast, ToastContent } from "@/components/Toast";
 import { PiFilePdf, PiSignOutFill } from "react-icons/pi";
 import { TbMailShare } from "react-icons/tb";
 import download from "downloadjs";
+import { CgTranscript } from "react-icons/cg";
+import { Modal } from "@/components/Modal";
 
 type Input = {
   url: string;
@@ -112,6 +114,8 @@ export default function Home() {
     }
   };
 
+  const [modalOpen, setModalOpen] = useState(false);
+
   return (
     <>
       <AppHead />
@@ -167,19 +171,23 @@ export default function Home() {
 
           {summary && transcript.length && (
             <>
-              <div className={styles.divider} />
-
-              <section className={styles.transcript}>
-                <div>
-                  {transcript.map((line, i) => (
-                    <p key={i}>{line}</p>
-                  ))}
-                </div>
-              </section>
-
+              {/* Replace with border-bottom */}
               <div className={styles.divider} />
 
               <section className={styles.summary}>
+                <header>
+                  <h2>
+                    <em>Summary</em>
+                  </h2>
+                  <button
+                    aria-label="View transcript"
+                    disabled={!transcript}
+                    onClick={() => setModalOpen(true)}
+                  >
+                    <CgTranscript />
+                  </button>
+                </header>
+
                 <div>
                   <ReactMarkdown>{summary}</ReactMarkdown>
                 </div>
@@ -187,6 +195,22 @@ export default function Home() {
             </>
           )}
         </div>
+
+        <Modal open={modalOpen} onOpenChange={setModalOpen}>
+          <section className={styles.transcript}>
+            <header>
+              <h2>
+                <em>Transcript</em>
+              </h2>
+            </header>
+
+            <div>
+              {transcript.map((line, i) => (
+                <p key={i}>{line}</p>
+              ))}
+            </div>
+          </section>
+        </Modal>
 
         <Toast {...toastContent} open={toastOpen} onOpenChange={setToastOpen} />
       </SignedIn>
