@@ -1,5 +1,7 @@
 # Video Summariser
 
+![Screenshot 2024-08-06 at 10 30 53](https://github.com/user-attachments/assets/cdf01b0e-85d3-43d6-b4a3-3a11a55c4f9d)
+
 Take any Youtube URL and generate a text summary of it, providing it has English captions.  
 
 Contact me if you would like to use the app.
