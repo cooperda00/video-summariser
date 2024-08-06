@@ -4,7 +4,7 @@ Take any Youtube URL and generate a text summary of it, providing it has English
 
 Contact me if you would like to use the app.
 
-[Video Demo]{https://www.loom.com/share/4c708599f1eb45e29edb2433fc9e0eec}
+[Video Demo](https://www.loom.com/share/4c708599f1eb45e29edb2433fc9e0eec)
 
 ## Features
 - Robust Youtube URL validation
