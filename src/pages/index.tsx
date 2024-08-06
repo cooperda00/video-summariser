@@ -101,7 +101,7 @@ export default function Home() {
 
     try {
       const response = await axios.post("/api/downloadAsPdf", { summary });
-      download(response.data.url, "summary.pdf", "application/pdf");
+      download(response.data.url);
     } catch (error) {
       if (error instanceof AxiosError) {
         triggerToast({
